@@ -1,0 +1,9 @@
+{
+    "name": "My Chrome Extension",
+    "version": "1.0",
+    "manifest_version": 3,
+    "description": "Build an Extension",
+    "action": {
+        "default_popup": "popup.html"
+    }
+}
