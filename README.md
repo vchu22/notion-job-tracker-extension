@@ -1,7 +1,7 @@
-# React Chrome Extension Boilerplate
-I followed the tutorial [Build a Chrome Extension With React & Webpack](https://www.youtube.com/watch?v=8OCEfOKzpAw) to build a simple Chrome extension using React.
+# Notion Job Tracker - Chrome Extension
+A job tracker extension that uses Notion as the backend to store your job tracking info.
 
-## Run project
+## Run the code
 #### Terminal Commands
 Run one of the commands to generate a `dist` folder containing your Chrome extension files:
 - Run development mode: `npm run dev`
