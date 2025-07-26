@@ -1,5 +1,5 @@
 {
-  "name": "chrome_extension_react_boilerplate",
+  "name": "notion-job-tracker-chrome-extension",
   "version": "1.0.0",
   "description": "",
   "main": "src/popup.tsx",
@@ -11,8 +11,8 @@
     }
   },
   "scripts": {
-    "dev": "webpack --watch --config webpack.dev.ts",
-    "build": "webpack --config webpack.prod.ts"
+    "dev": "webpack --watch --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
   },
   "keywords": [],
   "author": "",
@@ -34,8 +34,10 @@
     "babel-loader": "^9.1.3",
     "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.3",
-    "webpack": "^5.88.2",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
+    "webpack": "^5.100.2",
     "webpack-cli": "^5.1.4",
-    "webpack-merge": "^5.9.0"
+    "webpack-merge": "^5.10.0"
   }
 }
