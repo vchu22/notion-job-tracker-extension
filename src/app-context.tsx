@@ -10,7 +10,7 @@ const AppContext = createContext<AppContextType | null>(null)
 export function AppProvider({ children }: { children: ReactNode }) {
     const [databaseId, setDatabaseId] = useState<string>("");
     const [apiKey, setApiKey] = useState<string>("");
-    console.log(databaseId)
+    
     return (
         <AppContext.Provider value={{ databaseId, setDatabaseId, apiKey, setApiKey }}>
             {children}
