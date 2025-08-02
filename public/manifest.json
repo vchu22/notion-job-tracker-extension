@@ -3,6 +3,9 @@
     "version": "1.0",
     "manifest_version": 3,
     "description": "Build an Extension",
+    "host_permissions": [
+        "https://api.notion.com/*"
+    ],
     "action": {
         "default_popup": "popup.html"
     }

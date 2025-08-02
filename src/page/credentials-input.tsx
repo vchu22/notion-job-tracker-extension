@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAppContext } from "../app-context";
 
 function CredentialsInput() {
@@ -7,6 +7,22 @@ function CredentialsInput() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Credentials:", { databaseId, apiKey });
+        fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Notion-Version': '2022-06-28',
+                'Authorization': `Bearer ${apiKey}`,
+            }
+        }).then((response) => response.json())
+            .then((data) => {
+                // Handle the fetched data here
+                console.log(data)
+            })
+            .catch(error => {
+                // Handle any errors
+                console.log("Error: ", error)
+            });
     }
 
     const handleClear = () => {
