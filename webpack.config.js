@@ -20,7 +20,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
     ],
   },
@@ -34,7 +34,7 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: "public"},
+        { from: "public" },
       ],
     })
   ],

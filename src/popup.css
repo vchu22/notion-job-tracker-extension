@@ -1,0 +1,134 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f8f9fa;
+}
+
+h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+p {
+    line-height: 1.5;
+    color: #666;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+/* Common popup form styling */
+form {
+    & fieldset {
+        margin-bottom: 20px;
+        border: 1px solid #e0e0e0;
+        padding: 10px 20px;
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    & legend {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 14px;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px 16px;
+        margin-bottom: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+
+        &:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        &:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+    }
+
+    input[type="button"],
+    input[type="submit"] {
+        margin: 0 10px;
+        padding: 12px 24px;
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        min-width: 100px;
+    }
+
+    input[type="button"] {
+        background-color: #f8f9fa;
+        color: #495057;
+        border-color: #dee2e6;
+
+        &:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        &:disabled {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            cursor: not-allowed;
+        }
+    }
+
+    input[type="submit"] {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+
+        &:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        &:disabled {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+        }
+    }
+}
+
+/* Error and success message styling */
+.error-message {
+    padding: 12px 16px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.success-message {
+    padding: 12px 16px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}

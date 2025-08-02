@@ -2,6 +2,8 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import CredentialsInput from './page/credentials-input'
 import {AppProvider} from "./app-context";
+import './tailwind.css';
+import './popup.css';
 
 function Popup() {
     return (
