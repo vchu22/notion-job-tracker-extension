@@ -2,7 +2,10 @@
     "name": "Notion Job Tracker",
     "version": "1.0",
     "manifest_version": 3,
-    "description": "Build an Extension",
+    "description": "A Job Tracker Chrome Extension using your job tracking Notion database.",
+    "permissions": [
+        "storage"
+    ],
     "host_permissions": [
         "https://api.notion.com/*"
     ],

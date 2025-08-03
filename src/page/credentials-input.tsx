@@ -1,12 +1,31 @@
 import React, { useEffect } from "react";
 import { useAppContext } from "../app-context";
+import { saveCredentials, loadCredentials, clearCredentials } from "../lib/storage";
 
 function CredentialsInput() {
     const { databaseId, setDatabaseId, apiKey, setApiKey } = useAppContext()
 
+    // Load saved credentials when component mounts
+    useEffect(() => {
+        loadCredentials()
+            .then((result) => {
+                if (result.databaseId) setDatabaseId(result.databaseId);
+                if (result.apiKey) setApiKey(result.apiKey);
+            })
+            .catch((error) => {
+                console.error('Failed to load credentials:', error);
+            });
+    }, [setDatabaseId, setApiKey]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Credentials:", { databaseId, apiKey });
+
+        // Save credentials to Chrome storage
+        saveCredentials(databaseId, apiKey)
+            .catch((error) => {
+                console.error('Failed to save credentials:', error);
+            });
+
         fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
             method: 'GET',
             headers: {
@@ -28,11 +47,16 @@ function CredentialsInput() {
     const handleClear = () => {
         setDatabaseId("");
         setApiKey("");
+        // Also clear from storage
+        clearCredentials()
+            .catch((error) => {
+                console.error('Failed to clear credentials:', error);
+            });
     }
 
     return (
-        <div>
-            <h3>Enter the credentials to connect to your Notion.</h3>
+        <>
+            <h3>Connect to your Notion database.</h3>
             <p>Note: You will need to create your own Notion page with the job tracker database and a Notion API key to access your database. Follow this <a href=''>guide</a> on how to get your Notion ID and API key.</p>
             <form onSubmit={handleSubmit}>
                 <fieldset>
@@ -42,7 +66,7 @@ function CredentialsInput() {
                         onChange={e => setDatabaseId(e.target.value)}
                     />
                     <legend>API Key</legend>
-                    <input type="text" id="apiKey" value={apiKey}
+                    <input type="password" id="apiKey" value={apiKey}
                         onChange={e => setApiKey(e.target.value)}
                     />
                 </fieldset>
@@ -51,7 +75,7 @@ function CredentialsInput() {
                     <input type="submit" value="Connect" />
                 </div>
             </form>
-        </div>
+        </>
     )
 }
 
