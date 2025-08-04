@@ -31,7 +31,7 @@ export const saveCredentials = async (databaseId: string, apiKey: string): Promi
         const encryptedApiKey = await encryptData(apiKey, password);
 
         return new Promise((resolve, reject) => {
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
                 databaseId: encryptedDatabaseId,
                 apiKey: encryptedApiKey
             }, () => {
@@ -56,7 +56,7 @@ export const loadCredentials = async (): Promise<StoredCredentials> => {
         const password = await getExtensionPassword();
 
         return new Promise((resolve, reject) => {
-            chrome.storage.sync.get(['databaseId', 'apiKey'], async (result: StoredCredentials) => {
+            chrome.storage.local.get(['databaseId', 'apiKey'], async (result: StoredCredentials) => {
                 if (chrome.runtime.lastError) {
                     reject(new Error(chrome.runtime.lastError.message));
                     return;
@@ -104,7 +104,7 @@ export const loadCredentials = async (): Promise<StoredCredentials> => {
  */
 export const clearCredentials = (): Promise<void> => {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.remove(['databaseId', 'apiKey'], () => {
+        chrome.storage.local.remove(['databaseId', 'apiKey'], () => {
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError.message));
             } else {
@@ -120,7 +120,7 @@ export const clearCredentials = (): Promise<void> => {
  */
 export const areCredentialsEncrypted = (): Promise<boolean> => {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get(['databaseId', 'apiKey'], (result: StoredCredentials) => {
+        chrome.storage.local.get(['databaseId', 'apiKey'], (result: StoredCredentials) => {
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError.message));
                 return;
