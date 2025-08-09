@@ -22,3 +22,10 @@ dist
 
 # IDE
 .idea
+.continue
+
+# JetBrains
+*.iml
+out
+build
+qodana.yaml
