@@ -25,6 +25,7 @@
     "@types/react-dom": "^19.1.6",
     "babel": "^6.23.0",
     "react": "^18.2.0",
+    "react-chrome-extension-router": "^1.4.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
