@@ -3,6 +3,7 @@ import React, { createContext, useState, ReactNode, useContext } from "react";
 interface AppContextType {
     databaseId: string, setDatabaseId: (text: string) => void;
     apiKey: string, setApiKey: (text: string) => void;
+    firstTimeRun: boolean, setFirstTimeRun: (value: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -10,9 +11,10 @@ const AppContext = createContext<AppContextType | null>(null)
 export function AppProvider({ children }: { children: ReactNode }) {
     const [databaseId, setDatabaseId] = useState<string>("");
     const [apiKey, setApiKey] = useState<string>("");
-    
+    const [firstTimeRun, setFirstTimeRun] = useState<boolean>(true);
+
     return (
-        <AppContext.Provider value={{ databaseId, setDatabaseId, apiKey, setApiKey }}>
+        <AppContext.Provider value={{ databaseId, setDatabaseId, apiKey, setApiKey, firstTimeRun, setFirstTimeRun}}>
             {children}
         </AppContext.Provider>
     );

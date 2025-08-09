@@ -1,6 +1,8 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import CredentialsInput from './page/credentials-input'
+import CredentialsInputPage from './page/credentials-input'
+import WelcomePage from './page/welcome'
+
 import {AppProvider} from "./app-context";
 import './tailwind.css';
 import './popup.css';
@@ -8,9 +10,10 @@ import './popup.css';
 function Popup() {
     return (
         <AppProvider>
-            <div>
-                <CredentialsInput></CredentialsInput>
-            </div>
+            <>
+                <WelcomePage/>
+                {/*<CredentialsInputPage></CredentialsInputPage>*/}
+            </>
         </AppProvider>
     )
 }
