@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useAppContext } from "../app-context";
 import { saveCredentials, loadCredentials, clearCredentials } from "../lib/storage";
 
-function CredentialsInput() {
+function CredentialsInputPage() {
     const { databaseId, setDatabaseId, apiKey, setApiKey } = useAppContext()
 
     // Load saved credentials when component mounts
@@ -79,4 +79,4 @@ function CredentialsInput() {
     )
 }
 
-export default CredentialsInput;
+export default CredentialsInputPage;
