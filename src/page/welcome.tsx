@@ -1,13 +1,11 @@
 import React from "react";
 import { goTo } from 'react-chrome-extension-router';
 import CredentialsInputPage from './credentials-input';
-import { useAppContext } from "../app-context";
+import {saveSettings} from "../lib/settings";
 
 function WelcomePage() {
-    const { setFirstTimeRun } = useAppContext()
-
-    const handleClick = () => {
-        setFirstTimeRun(false);
+    const handleClick = async () => {
+        await saveSettings({skipWelcome: true});
         goTo(CredentialsInputPage);
     }
     return (
