@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import { useAppContext } from "../app-context";
 import { saveCredentials, loadCredentials, clearCredentials } from "../lib/db-credentials";
 
 function CredentialsInputPage() {
     const { databaseId, setDatabaseId, apiKey, setApiKey } = useAppContext()
+    const [showError, setShowError] = useState(false)
+    const [errorMessage, setErrorMessage] = useState("")
 
     // Load saved credentials when component mounts
     useEffect(() => {
@@ -19,29 +21,51 @@ function CredentialsInputPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (databaseId.length < 1){
+            setErrorMessage("Database ID cannot be empty.")
+            setShowError(true);
+        } else if (!/^[a-zA-Z0-9-_]+$/.test(databaseId)) {
+            setErrorMessage("Database ID contains invalid characters.");
+            setShowError(true);
+        } else if (apiKey.length < 1) {
+            setErrorMessage("API Key cannot be empty.");
+            setShowError(true);
+        } else if (!/^[a-zA-Z0-9-_]+$/.test(apiKey)) {
+            setErrorMessage("API Key contains invalid characters.");
+            setShowError(true);
+        } else {
+            // Save credentials to Chrome storage
+            saveCredentials(databaseId, apiKey)
+                .catch((error) => {
+                    console.error('Failed to save credentials:', error);
+                });
 
-        // Save credentials to Chrome storage
-        saveCredentials(databaseId, apiKey)
-            .catch((error) => {
-                console.error('Failed to save credentials:', error);
-            });
-
-        fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Notion-Version': '2022-06-28',
-                'Authorization': `Bearer ${apiKey}`,
-            }
-        }).then((response) => response.json())
-            .then((data) => {
-                // Handle the fetched data here
-                console.log(data)
-            })
-            .catch(error => {
-                // Handle any errors
-                console.log("Error: ", error)
-            });
+            fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Notion-Version': '2022-06-28',
+                    'Authorization': `Bearer ${apiKey}`,
+                }
+            }).then((response) => response.json())
+                .then((data) => {
+                    // Handle the fetched data here
+                    console.log(data.status, data)
+                    if (data.status) {       // if server returns any error status code
+                        setErrorMessage(data.message);
+                        setShowError(true);
+                    } else {
+                        setErrorMessage("");
+                        setShowError(false);
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.log("Error: ", error)
+                    setErrorMessage("Cannot connect: "+error)
+                    setShowError(true);
+                });
+        }
     }
 
     const handleClear = () => {
@@ -61,6 +85,7 @@ function CredentialsInputPage() {
             <form onSubmit={handleSubmit}>
                 <fieldset>
                     <legend>Connection Credentials</legend>
+                    {showError? <legend className="error-message">{errorMessage}</legend>: ""}
                     <legend>Database ID</legend>
                     <input type="text" id="databaseId" value={databaseId}
                         onChange={e => setDatabaseId(e.target.value)}
