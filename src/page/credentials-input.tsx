@@ -80,8 +80,8 @@ function CredentialsInputPage() {
 
     return (
         <>
-            <h3>Connect to your Notion database.</h3>
-            <p>Note: You will need to create your own Notion page with the job tracker database and a Notion API key to access your database. Follow this <a href=''>guide</a> on how to get your Notion ID and API key.</p>
+            <h3>Connect to your Notion database</h3>
+            <p>Note: You will need to create your own Notion page with a database and a Notion API key to access your database. Follow this <a href=''>guide</a> on how to get your Notion database ID and API key.</p>
             <form onSubmit={handleSubmit}>
                 <fieldset>
                     <legend>Connection Credentials</legend>
