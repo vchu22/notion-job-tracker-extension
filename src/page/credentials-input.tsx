@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useAppContext } from "../app-context";
-import { saveCredentials, loadCredentials, clearCredentials } from "../lib/storage";
+import { saveCredentials, loadCredentials, clearCredentials } from "../lib/db-credentials";
 
 function CredentialsInputPage() {
     const { databaseId, setDatabaseId, apiKey, setApiKey } = useAppContext()

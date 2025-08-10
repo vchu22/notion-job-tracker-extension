@@ -2,7 +2,6 @@ import React from "react";
 import { goTo } from 'react-chrome-extension-router';
 import CredentialsInputPage from './credentials-input';
 import { useAppContext } from "../app-context";
-import { saveCredentials, loadCredentials } from "../lib/storage";
 
 function WelcomePage() {
     const { setFirstTimeRun } = useAppContext()
