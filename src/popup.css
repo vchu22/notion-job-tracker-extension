@@ -102,7 +102,7 @@ a {
         }
     }
 
-    input[type="submit"] {
+    input[type="submit"], button.primary {
         background-color: #007bff;
         color: white;
         border-color: #007bff;
@@ -139,4 +139,35 @@ a {
     border-radius: 6px;
     margin-bottom: 15px;
     font-size: 14px;
+}
+
+/* Modal */
+.modal {
+    background-color: #33333355;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .modal-dialog {
+        background: white;
+        font-size: 16px;
+        width: calc(100vw - 10vw);
+        min-height: 150px;
+        position: relative;
+        border: 3px solid #00000055;
+        border-radius: 10px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        & > * {
+
+            margin: 12px 0;
+        }
+    }
 }

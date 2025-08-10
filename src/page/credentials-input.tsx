@@ -6,6 +6,7 @@ function CredentialsInputPage() {
     const { databaseId, setDatabaseId, apiKey, setApiKey } = useAppContext()
     const [showError, setShowError] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
+    const [showModal, setShowModal] = useState(false)
 
     // Load saved credentials when component mounts
     useEffect(() => {
@@ -34,12 +35,6 @@ function CredentialsInputPage() {
             setErrorMessage("API Key contains invalid characters.");
             setShowError(true);
         } else {
-            // Save credentials to Chrome storage
-            saveCredentials(databaseId, apiKey)
-                .catch((error) => {
-                    console.error('Failed to save credentials:', error);
-                });
-
             fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
                 method: 'GET',
                 headers: {
@@ -57,6 +52,7 @@ function CredentialsInputPage() {
                     } else {
                         setErrorMessage("");
                         setShowError(false);
+                        setShowModal(true);
                     }
                 })
                 .catch(error => {
@@ -80,6 +76,7 @@ function CredentialsInputPage() {
 
     return (
         <>
+            {showModal? <Modal databaseId={databaseId} apiKey={apiKey} setShowModal={setShowModal}/>: null}
             <h3>Connect to your Notion database</h3>
             <p>Note: You will need to create your own Notion page with a database and a Notion API key to access your database. Follow this <a href=''>guide</a> on how to get your Notion database ID and API key.</p>
             <form onSubmit={handleSubmit}>
@@ -104,4 +101,27 @@ function CredentialsInputPage() {
     )
 }
 
+const Modal = ({databaseId, apiKey, setShowModal} : {databaseId: string, apiKey: string, setShowModal: Function}) => {
+    const handleClick = (answer: boolean) => {
+        if (answer) {
+            // Save credentials to Chrome storage
+            saveCredentials(databaseId, apiKey)
+                .catch((error) => {
+                    console.error('Failed to save credentials:', error);
+                });
+        }
+        setShowModal(false);
+    }
+    return (
+        <div className="modal">
+            <div className="modal-dialog">
+                <p>Do you want to save your database connection credentials?</p>
+                <div className="flex flex-row justify-end">
+                    <button onClick={()=>{handleClick(true)}} className="primary">Yes</button>
+                    <button onClick={()=>{handleClick(false)}}>No</button>
+                </div>
+            </div>
+        </div>
+    )
+}
 export default CredentialsInputPage;
