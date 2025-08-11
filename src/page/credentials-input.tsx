@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from "react";
+import { goTo } from 'react-chrome-extension-router';
+import JobTrackingBoard from './job-tracking-board'
 import { useAppContext } from "../app-context";
 import { saveCredentials, loadCredentials, clearCredentials } from "../lib/db-credentials";
 
 function CredentialsInputPage() {
-    const { databaseId, setDatabaseId, apiKey, setApiKey } = useAppContext()
+    const { databaseId, setDatabaseId, apiKey, setApiKey, setBoardName } = useAppContext()
     const [showError, setShowError] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
     const [showModal, setShowModal] = useState(false)
@@ -22,6 +24,7 @@ function CredentialsInputPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // input validations
         if (databaseId.length < 1){
             setErrorMessage("Database ID cannot be empty.")
             setShowError(true);
@@ -45,7 +48,6 @@ function CredentialsInputPage() {
             }).then((response) => response.json())
                 .then((data) => {
                     // Handle the fetched data here
-                    console.log(data.status, data)
                     if (data.status) {       // if server returns any error status code
                         setErrorMessage(data.message);
                         setShowError(true);
@@ -53,6 +55,7 @@ function CredentialsInputPage() {
                         setErrorMessage("");
                         setShowError(false);
                         setShowModal(true);
+                        setBoardName(data["title"][0]["plain_text"]) // Notion page title
                     }
                 })
                 .catch(error => {
@@ -111,6 +114,7 @@ const Modal = ({databaseId, apiKey, setShowModal} : {databaseId: string, apiKey:
                 });
         }
         setShowModal(false);
+        goTo(JobTrackingBoard)
     }
     return (
         <div className="modal">
