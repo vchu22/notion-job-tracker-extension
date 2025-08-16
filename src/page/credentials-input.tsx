@@ -5,7 +5,7 @@ import { useAppContext } from "../app-context";
 import { saveCredentials, loadCredentials, clearCredentials } from "../lib/db-credentials";
 
 function CredentialsInputPage() {
-    const { databaseId, setDatabaseId, apiKey, setApiKey, setBoardName } = useAppContext()
+    const { databaseId, setDatabaseId, apiKey, setApiKey, setBoardName, setBoardIcon, setBoardColumns } = useAppContext()
     const [showError, setShowError] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
     const [showModal, setShowModal] = useState(false)
@@ -55,7 +55,8 @@ function CredentialsInputPage() {
                         setErrorMessage("");
                         setShowError(false);
                         setShowModal(true);
-                        setBoardName(data["title"][0]["plain_text"]) // Notion page title
+                        setBoardName(data["title"][0]["plain_text"]); // Notion page title
+                        setBoardIcon(data["icon"]["external"]["url"]);
                     }
                 })
                 .catch(error => {
