@@ -57,6 +57,7 @@ function CredentialsInputPage() {
                         setShowModal(true);
                         setBoardName(data["title"][0]["plain_text"]); // Notion page title
                         setBoardIcon(data["icon"]["external"]["url"]);
+                        setBoardColumns(data["properties"]);
                     }
                 })
                 .catch(error => {
