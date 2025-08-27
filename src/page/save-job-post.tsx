@@ -5,11 +5,11 @@ import JobTrackingBoard from "./job-tracking-board";
 import {useAppContext} from "../app-context";
 
 const typeInputs = {
-    "date": (name:string) => <input type="date" id={name} name={name}/>,
-    "rich_text": (name:string) => <input type="text" id={name} name={name}/>,
-    "url": (name:string) => <input type="url" id={name} name={name}/>,
-    "number": (name:string) => <input type="number" id={name} name={name}/>,
     "title": (name:string) => <input type="text" id={name} name={name}/>,
+    "date": (name:string) => <input type="date" id={name} name={name}/>,
+    "number": (name:string) => <input type="number" id={name} name={name}/>,
+    "url": (name:string) => <input type="url" id={name} name={name}/>,
+    "rich_text": (name:string) => <textarea id={name} name={name}></textarea>,
     "select": (name:string, values: { options: Array<{ id: string, name: string, [key: string]: any } >
 }) => {
         const options = values["options"].map(v => {return {value: v["name"], label: v["name"]}});
