@@ -1,4 +1,5 @@
 import React from "react";
+import CreatableSelect from 'react-select/creatable';
 import { goTo } from 'react-chrome-extension-router';
 import JobTrackingBoard from "./job-tracking-board";
 import {useAppContext} from "../app-context";
@@ -10,17 +11,15 @@ const typeInputs = {
     "number": (name:string) => <input type="number" id={name} name={name}/>,
     "title": (name:string) => <input type="text" id={name} name={name}/>,
     "select": (name:string, values: { options: Array<{ id: string, name: string, [key: string]: any } >
-    }) => (<select name={name} id={name}>
-            {values["options"].map(value => (
-                    <option key={value["id"]} value={value["name"]}>{value["name"]}</option>))}
-        </select>),
+}) => {
+        const options = values["options"].map(v => {return {value: v["name"], label: v["name"]}});
+        return <CreatableSelect isClearable={false} options={options} />;
+    },
     "multi_select": (name:string, values: { options: Array<{ id: string, name: string, [key: string]: any } >
-    }) => (<div id={name}>
-            {values["options"].map(value => (<div key={value["id"]}>
-                    <input type="checkbox" id={value["id"]} name={value["name"]} value={value["name"]}/>
-                    <label htmlFor={value["name"]}>{value["name"]}</label><br/>
-                </div>))}
-        </div>),
+}) => {
+        const options = values["options"].map(v => {return {value: v["name"], label: v["name"]}});
+        return <CreatableSelect isMulti isClearable={false} options={options} />;
+    },
 }
 
 function SaveJobPost() {
@@ -41,7 +40,7 @@ function SaveJobPost() {
                     const elemFunc = typeInputs[type];
                     if (elemFunc != undefined) {
                         // @ts-ignore
-                        const elem = type == "select" || type == "multi_select"? elemFunc(key, boardColumns[key]["select"] || boardColumns[key]["multi_select"]):elemFunc(key);
+                        const elem = type == "select" || type == "multi_select"? elemFunc(key, boardColumns[key]["select"] || boardColumns[key]["multi_select"]) : elemFunc(key);
                         return (
                             <tr key={key}>
                                 <td>{key}</td>
