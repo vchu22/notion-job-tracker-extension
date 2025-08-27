@@ -9,14 +9,18 @@ const typeInputs = {
     "url": (name:string) => <input type="url" id={name} name={name}/>,
     "number": (name:string) => <input type="number" id={name} name={name}/>,
     "title": (name:string) => <input type="text" id={name} name={name}/>,
-    "select": (name:string, values: { id: string, name: string, [key : string]: any }) =>
-        (<select name={name} id={name}>
-            <option value={values["name"]}>{values["name"]}</option>
+    "select": (name:string, values: { options: Array<{ id: string, name: string, [key: string]: any } >
+    }) => (<select name={name} id={name}>
+            {values["options"].map(value => (
+                    <option key={value["id"]} value={value["name"]}>{value["name"]}</option>))}
         </select>),
-    // "multi_select": (name:string, values: { id: string, name: string, [key : string]: any }) =>
-    //     (<select name={name} id={name}>
-    //         <option value={values["name"]}>{values["name"]}</option>
-    //     </select>),
+    "multi_select": (name:string, values: { options: Array<{ id: string, name: string, [key: string]: any } >
+    }) => (<div id={name}>
+            {values["options"].map(value => (<div key={value["id"]}>
+                    <input type="checkbox" id={value["id"]} name={value["name"]} value={value["name"]}/>
+                    <label htmlFor={value["name"]}>{value["name"]}</label><br/>
+                </div>))}
+        </div>),
 }
 
 function SaveJobPost() {
@@ -28,16 +32,16 @@ function SaveJobPost() {
             <button onClick={() => goTo(JobTrackingBoard)}>&larr; Back</button>
             <h3>Save to {boardName}</h3>
             <form>
-            <table>
-                <tbody>
-                { columnNames.map(key => {
+                <table>
+                    <tbody>
+                    { columnNames.map(key => {
                     // @ts-ignore
                     const type: string = boardColumns[key]["type"]
                     // @ts-ignore
                     const elemFunc = typeInputs[type];
                     if (elemFunc != undefined) {
                         // @ts-ignore
-                        const elem = type == "select" || type == "multi_select"? elemFunc(key, boardColumns[key]["select"]):elemFunc(key);
+                        const elem = type == "select" || type == "multi_select"? elemFunc(key, boardColumns[key]["select"] || boardColumns[key]["multi_select"]):elemFunc(key);
                         return (
                             <tr key={key}>
                                 <td>{key}</td>
