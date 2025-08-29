@@ -1,36 +1,40 @@
-import React from "react";
+import React, {useState} from "react";
 import CreatableSelect from 'react-select/creatable';
 import { goTo } from 'react-chrome-extension-router';
 import JobTrackingBoard from "./job-tracking-board";
 import {useAppContext} from "../app-context";
 
 const typeInputs = {
-    "title": (name:string) => <input type="text" id={name} name={name}/>,
-    "date": (name:string) => <input type="date" id={name} name={name}/>,
-    "number": (name:string) => <input type="number" id={name} name={name}/>,
-    "url": (name:string) => <input type="url" id={name} name={name}/>,
-    "rich_text": (name:string) => <textarea id={name} name={name}></textarea>,
-    "select": (name:string, values: { options: Array<{ id: string, name: string, [key: string]: any } >
-}) => {
-        const options = values["options"].map(v => {return {value: v["name"], label: v["name"]}});
-        return <CreatableSelect isClearable={false} options={options} />;
+    "title": (name:string, values: {[key:string]: any}, setValues: any) => <input type="text" id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
+    "date": (name:string, values: {[key:string]: any}, setValues: any) => <input type="date" id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
+    "number": (name:string, values: {[key:string]: any}, setValues: any) => <input type="number" id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
+    "url": (name:string, values: {[key:string]: any}, setValues: any) => <input type="url" id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
+    "rich_text": (name:string, values: {[key:string]: any}, setValues: any) => <textarea id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
+    "select": (name:string, opt: { options: Array<{ id: string, name: string, [key: string]: any } >
+}, values: {[key:string]: any}, setValues: any) => {
+        const options = opt["options"].map(o => {return {value: o["name"], label: o["name"]}});
+        return <CreatableSelect isClearable={false} options={options} onChange={(val) => setValues({...values, [name]: val})}/>;
     },
-    "multi_select": (name:string, values: { options: Array<{ id: string, name: string, [key: string]: any } >
-}) => {
-        const options = values["options"].map(v => {return {value: v["name"], label: v["name"]}});
-        return <CreatableSelect isMulti isClearable={false} options={options} />;
+    "multi_select": (name:string, opt: { options: Array<{ id: string, name: string, [key: string]: any } >
+}, values: {[key:string]: any}, setValues: any) => {
+        const options = opt["options"].map(o => {return {value: o["name"], label: o["name"]}});
+        return <CreatableSelect isMulti isClearable={false} options={options} onChange={(val) => setValues({...values, [name]: val})} />;
     },
 }
 
 function SaveJobPost() {
     const {boardName, boardColumns} = useAppContext()
     const columnNames = Object.keys(boardColumns);
+    const [fieldValues, setFieldValues] = useState(Object.keys(boardColumns).reduce((acc, key) => ({...acc, [key]: ""}), {}))
 
     return (
         <>
             <button onClick={() => goTo(JobTrackingBoard)}>&larr; Back</button>
             <h3>Save to {boardName}</h3>
-            <form>
+            <form onSubmit={e => {
+                e.preventDefault();
+                console.log(fieldValues)
+            }}>
                 <table>
                     <tbody>
                     { columnNames.map(key => {
@@ -40,7 +44,7 @@ function SaveJobPost() {
                     const elemFunc = typeInputs[type];
                     if (elemFunc != undefined) {
                         // @ts-ignore
-                        const elem = type == "select" || type == "multi_select"? elemFunc(key, boardColumns[key]["select"] || boardColumns[key]["multi_select"]) : elemFunc(key);
+                        const elem = type == "select" || type == "multi_select"? elemFunc(key, boardColumns[key]["select"] || boardColumns[key]["multi_select"], fieldValues, setFieldValues) : elemFunc(key, fieldValues, setFieldValues);
                         return (
                             <tr key={key}>
                                 <td>{key}</td>
