@@ -13,7 +13,8 @@ const createInputField = (name:string, type: string, values: {[key:string]: any}
         case "multi_select":
             return <CreatableSelect isClearable={false} options={opt} onChange={(val) => setValues({...values, [name]: val})} isMulti={type == "multi_select"} />;
         default:
-            return <input type={type == "title"? "text": type} id={name} name={name} value={tabURL || values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>;
+            return <input type={type == "title"? "text": type} id={name} name={name} value={values[name]}
+                          onFocus={(e) => setValues({...values, [name]: e.target.value || tabURL})} onChange={(e) => setValues({...values, [name]: e.target.value})}/>;
     }
 }
 
@@ -26,9 +27,11 @@ function SaveJobPost() {
         }
     });
     const [fieldValues, setFieldValues] = useState(Object.keys(boardColumns).reduce((acc, key) => {
-        const acceptedTypes = ["url", "title", "text", "rich_text", "number", "date", "select", "multi_select"]
+        const acceptedTypes = ["title", "text", "rich_text", "number", "date", "select", "multi_select"]
         // @ts-ignore
-        if (acceptedTypes.includes(boardColumns[key]["type"])) return ({...acc, [key]: ""})
+        const type: string = boardColumns[key]["type"]
+        if (acceptedTypes.includes(type)) return ({...acc, [key]: ""})
+        else if (type == "url") return ({...acc, [key]: activeTabURL})
         else return ({...acc})
     }, {}))
 
