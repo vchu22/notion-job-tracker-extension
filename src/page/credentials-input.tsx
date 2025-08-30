@@ -3,6 +3,9 @@ import { goTo } from 'react-chrome-extension-router';
 import JobTrackingBoard from './job-tracking-board'
 import { useAppContext } from "../app-context";
 import { saveCredentials, loadCredentials, clearCredentials } from "../lib/db-credentials";
+import {saveSettings} from "../lib/settings";
+import {MainPage} from "../lib/util-consts";
+import {getDatabaseStructure} from "../lib/util-functions";
 
 function CredentialsInputPage() {
     const { databaseId, setDatabaseId, apiKey, setApiKey, setBoardName, setBoardIcon, setBoardColumns } = useAppContext()
@@ -38,34 +41,7 @@ function CredentialsInputPage() {
             setErrorMessage("API Key contains invalid characters.");
             setShowError(true);
         } else {
-            fetch(`https://api.notion.com/v1/databases/${databaseId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Notion-Version': '2022-06-28',
-                    'Authorization': `Bearer ${apiKey}`,
-                }
-            }).then((response) => response.json())
-                .then((data) => {
-                    // Handle the fetched data here
-                    if (data.status) {       // if server returns any error status code
-                        setErrorMessage(data.message);
-                        setShowError(true);
-                    } else {
-                        setErrorMessage("");
-                        setShowError(false);
-                        setShowModal(true);
-                        setBoardName(data["title"][0]["plain_text"]); // Notion page title
-                        setBoardIcon(data["icon"]["external"]["url"]);
-                        setBoardColumns(data["properties"]);
-                    }
-                })
-                .catch(error => {
-                    // Handle any errors
-                    console.log("Error: ", error)
-                    setErrorMessage("Cannot connect: "+error)
-                    setShowError(true);
-                });
+            getDatabaseStructure(databaseId,apiKey,setBoardName,setBoardIcon,setBoardColumns,setErrorMessage, setShowError).then(() => setShowModal(true))
         }
     }
 
@@ -115,6 +91,7 @@ const Modal = ({databaseId, apiKey, setShowModal} : {databaseId: string, apiKey:
                 .catch((error) => {
                     console.error('Failed to save credentials:', error);
                 });
+            saveSettings({mainPage: MainPage.JobTrackingBoard}).then();
         }
         setShowModal(false);
         goTo(JobTrackingBoard)

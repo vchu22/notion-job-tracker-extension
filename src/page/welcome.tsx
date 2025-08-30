@@ -2,10 +2,11 @@ import React from "react";
 import { goTo } from 'react-chrome-extension-router';
 import CredentialsInputPage from './credentials-input';
 import {saveSettings} from "../lib/settings";
+import {MainPage} from "../lib/util-consts";
 
 function WelcomePage() {
     const handleClick = async () => {
-        await saveSettings({skipWelcome: true});
+        await saveSettings({mainPage: MainPage.CredentialInput});
         goTo(CredentialsInputPage);
     }
     return (
