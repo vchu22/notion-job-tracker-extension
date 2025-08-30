@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import { goTo } from 'react-chrome-extension-router';
-import { initFieldValues } from '../lib/util-functions'
+import {initFieldValues, saveToDatabase} from '../lib/util-functions'
 import { createInputField } from '../lib/util-components'
 import JobTrackingBoard from "./job-tracking-board";
 import {useAppContext} from "../app-context";
@@ -53,30 +53,7 @@ function SaveJobPost() {
                 }, {})
 
                 // Send a request to save the form values on the Notion database
-                fetch(`https://api.notion.com/v1/pages`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Notion-Version': '2022-06-28',
-                        'Authorization': `Bearer ${apiKey}`,
-                    },
-                    body: JSON.stringify({
-                        "parent": { "database_id": databaseId },
-                        "properties": properties
-                    })
-                }).then((response) => response.json())
-                    .then((data) => {
-                        // Handle the fetched data here
-                        if (data.status) {       // if server returns any error status code
-                            console.log("Error: ", data)
-                        } else {
-                            console.log("Row successfully added!")
-                        }
-                    })
-                    .catch(error => {
-                        // Handle any errors
-                        console.log("Error: ", error)
-                    });
+                saveToDatabase(databaseId, apiKey, properties);
             }}>
                 <table>
                     <tbody>

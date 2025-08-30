@@ -50,3 +50,30 @@ export const getDatabaseStructure = (
             }
         });
 }
+
+export const saveToDatabase = (databaseId:string, apiKey:string, properties: {[key:string]:any}) => {
+    fetch(`https://api.notion.com/v1/pages`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Notion-Version': '2022-06-28',
+            'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+            "parent": { "database_id": databaseId },
+            "properties": properties
+        })
+    }).then((response) => response.json())
+        .then((data) => {
+            // Handle the fetched data here
+            if (data.status) {       // if server returns any error status code
+                console.log("Error: ", data)
+            } else {
+                console.log("Row successfully added!")
+            }
+        })
+        .catch(error => {
+            // Handle any errors
+            console.log("Error: ", error)
+        });
+}
