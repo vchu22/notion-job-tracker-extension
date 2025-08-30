@@ -5,11 +5,15 @@
     "description": "A Job Tracker Chrome Extension using your job tracking Notion database.",
     "permissions": [
         "storage",
-        "activeTab"
+        "activeTab",
+        "sidePanel"
     ],
     "host_permissions": [
         "https://api.notion.com/*"
     ],
+    "side_panel": {
+        "default_path": "popup.html"
+    },
     "action": {
         "default_popup": "popup.html"
     },
