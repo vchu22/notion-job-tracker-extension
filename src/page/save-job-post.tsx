@@ -4,34 +4,33 @@ import { goTo } from 'react-chrome-extension-router';
 import JobTrackingBoard from "./job-tracking-board";
 import {useAppContext} from "../app-context";
 
-const typeInputs = {
-    "title": (name:string, values: {[key:string]: any}, setValues: any) => <input type="text" id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
-    "date": (name:string, values: {[key:string]: any}, setValues: any) => <input type="date" id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
-    "number": (name:string, values: {[key:string]: any}, setValues: any) => <input type="number" id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
-    "url": (name:string, values: {[key:string]: any}, setValues: any, tabURL?: string) => <input type="url" id={name} name={name} value={tabURL || values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
-    "rich_text": (name:string, values: {[key:string]: any}, setValues: any) => <textarea id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>,
-    "select": (name:string, opt: { options: Array<{ id: string, name: string, [key: string]: any } >
-}, values: {[key:string]: any}, setValues: any) => {
-        const options = opt["options"].map(o => {return {value: o["name"], label: o["name"]}});
-        return <CreatableSelect isClearable={false} options={options} onChange={(val) => setValues({...values, [name]: val})}/>;
-    },
-    "multi_select": (name:string, opt: { options: Array<{ id: string, name: string, [key: string]: any } >
-}, values: {[key:string]: any}, setValues: any) => {
-        const options = opt["options"].map(o => {return {value: o["name"], label: o["name"]}});
-        return <CreatableSelect isMulti isClearable={false} options={options} onChange={(val) => setValues({...values, [name]: val})} />;
-    },
+const createInputField = (name:string, type: string, values: {[key:string]: any}, setValues: any, tabURL?: string, options?: { options: Array<{ id: string, name: string, [key: string]: any }>}) => {
+    const opt = options? options["options"].map(o => {return {value: o["name"], label: o["name"]}}) : undefined;
+    switch (type) {
+        case "rich_text":
+            return <textarea id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>
+        case "select":
+        case "multi_select":
+            return <CreatableSelect isClearable={false} options={opt} onChange={(val) => setValues({...values, [name]: val})} isMulti={type == "multi_select"} />;
+        default:
+            return <input type={type == "title"? "text": type} id={name} name={name} value={tabURL || values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>;
+    }
 }
 
 function SaveJobPost() {
     const {boardName, boardColumns} = useAppContext()
-    const columnNames = Object.keys(boardColumns);
     const [activeTabURL, setActiveTabURL] = useState("")
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
         if (tab && typeof tab.url === 'string') {
             setActiveTabURL(tab.url)
         }
     });
-    const [fieldValues, setFieldValues] = useState(Object.keys(boardColumns).reduce((acc, key) => {return ({...acc, [key]: ""})}, {}))
+    const [fieldValues, setFieldValues] = useState(Object.keys(boardColumns).reduce((acc, key) => {
+        const acceptedTypes = ["url", "title", "text", "rich_text", "number", "date", "select", "multi_select"]
+        // @ts-ignore
+        if (acceptedTypes.includes(boardColumns[key]["type"])) return ({...acc, [key]: ""})
+        else return ({...acc})
+    }, {}))
 
     return (
         <>
@@ -43,21 +42,18 @@ function SaveJobPost() {
             }}>
                 <table>
                     <tbody>
-                    { columnNames.map(key => {
+                    { fieldValues? Object.keys(fieldValues).map(key => {
                         // @ts-ignore
                         const type: string = boardColumns[key]["type"]
                         // @ts-ignore
-                        const elemFunc = typeInputs[type];
-                        if (elemFunc != undefined) {
-                            // @ts-ignore
-                            const elem = type == "select" || type == "multi_select"? elemFunc(key, boardColumns[key]["select"] || boardColumns[key]["multi_select"], fieldValues, setFieldValues) : (type=="url"? elemFunc(key, fieldValues, setFieldValues, activeTabURL): elemFunc(key, fieldValues, setFieldValues));
-                            return (
-                                <tr key={key}>
-                                    <td>{key}</td>
-                                    <td>{elem}</td>
-                                </tr>)
-                        }
-                })}
+                        const inputField = createInputField(key, type, fieldValues, setFieldValues, (type == "url"? activeTabURL: fieldValues[key]), (type == "select" || type == "multi_select"? boardColumns[key]["select"] || boardColumns[key]["multi_select"] : undefined));
+
+                        return (
+                            <tr key={key}>
+                                <td>{key}</td>
+                                <td>{inputField}</td>
+                            </tr>)
+                }):null}
                 </tbody>
                 <tfoot>
                     <tr>
