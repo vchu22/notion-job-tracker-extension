@@ -17,8 +17,6 @@ function SaveJobPost() {
 
     return (
         <>
-            <button onClick={() => goTo(JobTrackingBoard)}>&larr; Back</button>
-            <h3>Save to {boardName}</h3>
             <form onSubmit={e => {
                 e.preventDefault();
                 // Convert field values into acceptable formats
@@ -55,6 +53,7 @@ function SaveJobPost() {
                 // Send a request to save the form values on the Notion database
                 saveToDatabase(databaseId, apiKey, properties);
             }}>
+                <h3><button onClick={() => goTo(JobTrackingBoard)}>&larr;</button>Save to {boardName}</h3>
                 <table>
                     <tbody>
                     { fieldValues? Object.keys(fieldValues).map(key => {
@@ -65,25 +64,17 @@ function SaveJobPost() {
 
                         return (
                             <tr key={key}>
-                                <td>{key}</td>
-                                <td>{inputField}</td>
+                                <td className="w-1/5">{key}</td>
+                                <td className="w-full">{inputField}</td>
                             </tr>)
-                }):null}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td>
-                            <input type="button" value="Clear" onClick={()  => setFieldValues(initFieldValues(boardColumns, activeTabURL))}/>
-                        </td>
-                        <td>
-                            <input type="button" value="Cancel" onClick={()  => goTo(JobTrackingBoard)}/>
-                        </td>
-                        <td>
-                            <input type="submit" name="save_job" value="Save Job"/>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+                    }):null}
+                    </tbody>
+                </table>
+                <div className="flex flex-row justify-end">
+                    <input type="button" value="Clear" onClick={()  => setFieldValues(initFieldValues(boardColumns, activeTabURL))}/>
+                    <input type="button" value="Cancel" onClick={()  => goTo(JobTrackingBoard)}/>
+                    <input type="submit" name="save_job" value="Save Job"/>
+                </div>
             </form>
         </>
     )
