@@ -19,7 +19,7 @@ const createInputField = (name:string, type: string, values: {[key:string]: any}
 }
 
 function SaveJobPost() {
-    const {boardName, boardColumns} = useAppContext()
+    const {databaseId, apiKey, boardName, boardColumns} = useAppContext()
     const [activeTabURL, setActiveTabURL] = useState("")
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
         if (tab && typeof tab.url === 'string') {
@@ -41,7 +41,62 @@ function SaveJobPost() {
             <h3>Save to {boardName}</h3>
             <form onSubmit={e => {
                 e.preventDefault();
-                console.log(fieldValues)
+                // Convert field values into acceptable formats
+                const properties = Object.keys(fieldValues).reduce((acc, key) => {
+                    // @ts-ignore
+                    if (fieldValues[key] == "") return ({...acc});
+
+                    let val;
+                    // @ts-ignore
+                    switch (boardColumns[key]["type"]) {
+                        case "title":
+                        case "rich_text":
+                            // @ts-ignore
+                            val = [{ text: { content: fieldValues[key] }}]; break;
+                        case "number":
+                            // @ts-ignore
+                            val = Number.parseFloat(fieldValues[key]); break;
+                        case "date":
+                            // @ts-ignore
+                            val = {start: fieldValues[key]}; break;
+                        case "select":
+                            // @ts-ignore
+                            val = {name: fieldValues[key]["value"]}; break;
+                        case "multi_select":
+                            // @ts-ignore
+                            val = fieldValues[key].map(o => {return {name: o["value"]}}); break;
+                        default:
+                            // @ts-ignore
+                            val = fieldValues[key]
+                    }
+                    return ({...acc, [key]: val})
+                }, {})
+
+                // Send a request to save the form values on the Notion database
+                fetch(`https://api.notion.com/v1/pages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Notion-Version': '2022-06-28',
+                        'Authorization': `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        "parent": { "database_id": databaseId },
+                        "properties": properties
+                    })
+                }).then((response) => response.json())
+                    .then((data) => {
+                        // Handle the fetched data here
+                        if (data.status) {       // if server returns any error status code
+                            console.log("Error: ", data)
+                        } else {
+                            console.log("Row successfully added!")
+                        }
+                    })
+                    .catch(error => {
+                        // Handle any errors
+                        console.log("Error: ", error)
+                    });
             }}>
                 <table>
                     <tbody>
