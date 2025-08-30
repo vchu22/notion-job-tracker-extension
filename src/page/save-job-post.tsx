@@ -1,22 +1,9 @@
 import React, {useState} from "react";
-import CreatableSelect from 'react-select/creatable';
 import { goTo } from 'react-chrome-extension-router';
+import { initFieldValues } from '../lib/util-functions'
+import { createInputField } from '../lib/util-components'
 import JobTrackingBoard from "./job-tracking-board";
 import {useAppContext} from "../app-context";
-
-const createInputField = (name:string, type: string, values: {[key:string]: any}, setValues: any, tabURL?: string, options?: { options: Array<{ id: string, name: string, [key: string]: any }>}) => {
-    const opt = options? options["options"].map(o => {return {value: o["name"], label: o["name"]}}) : undefined;
-    switch (type) {
-        case "rich_text":
-            return <textarea id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>
-        case "select":
-        case "multi_select":
-            return <CreatableSelect isClearable={false} options={opt} onChange={(val) => setValues({...values, [name]: val})} isMulti={type == "multi_select"} />;
-        default:
-            return <input type={type == "title"? "text": type} id={name} name={name} value={values[name]}
-                          onFocus={(e) => setValues({...values, [name]: e.target.value || tabURL})} onChange={(e) => setValues({...values, [name]: e.target.value})}/>;
-    }
-}
 
 function SaveJobPost() {
     const {databaseId, apiKey, boardName, boardColumns} = useAppContext()
@@ -26,14 +13,7 @@ function SaveJobPost() {
             setActiveTabURL(tab.url)
         }
     });
-    const [fieldValues, setFieldValues] = useState(Object.keys(boardColumns).reduce((acc, key) => {
-        const acceptedTypes = ["title", "text", "rich_text", "number", "date", "select", "multi_select"]
-        // @ts-ignore
-        const type: string = boardColumns[key]["type"]
-        if (acceptedTypes.includes(type)) return ({...acc, [key]: ""})
-        else if (type == "url") return ({...acc, [key]: activeTabURL})
-        else return ({...acc})
-    }, {}))
+    const [fieldValues, setFieldValues] = useState(initFieldValues(boardColumns, activeTabURL))
 
     return (
         <>
@@ -116,7 +96,10 @@ function SaveJobPost() {
                 <tfoot>
                     <tr>
                         <td>
-                            <input type="button" name="cancel" value="Cancel"/>
+                            <input type="button" value="Clear" onClick={()  => setFieldValues(initFieldValues(boardColumns, activeTabURL))}/>
+                        </td>
+                        <td>
+                            <input type="button" value="Cancel" onClick={()  => goTo(JobTrackingBoard)}/>
                         </td>
                         <td>
                             <input type="submit" name="save_job" value="Save Job"/>

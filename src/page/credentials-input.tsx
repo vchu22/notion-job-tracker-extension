@@ -99,6 +99,7 @@ function CredentialsInputPage() {
                 </fieldset>
                 <div className="flex flex-row justify-end">
                     <input type="button" value="Clear" onClick={handleClear} />
+                    <input type="button" value="Cancel" onClick={() => goTo(JobTrackingBoard)} />
                     <input type="submit" value="Connect" />
                 </div>
             </form>
