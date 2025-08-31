@@ -8,7 +8,8 @@ import {getDatabaseStructure} from "../lib/util-functions";
 function JobTrackingBoard() {
     const { boardName, boardIcon, databaseId, apiKey, setBoardName,setBoardIcon,setBoardColumns } = useAppContext();
     useEffect(() => {
-        getDatabaseStructure(databaseId,apiKey,setBoardName,setBoardIcon,setBoardColumns);
+        if (databaseId && apiKey)
+            getDatabaseStructure(databaseId,apiKey,setBoardName,setBoardIcon,setBoardColumns);
     }, [databaseId, apiKey])
     return (boardName?
         <>
