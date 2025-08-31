@@ -9,7 +9,7 @@ function JobTrackingBoard() {
     const { boardName, boardIcon, databaseId, apiKey, setBoardName,setBoardIcon,setBoardColumns } = useAppContext();
     useEffect(() => {
         getDatabaseStructure(databaseId,apiKey,setBoardName,setBoardIcon,setBoardColumns);
-    })
+    }, [databaseId, apiKey])
     return (boardName?
         <>
             <img src={boardIcon} alt="" width={64} height={64}/>
