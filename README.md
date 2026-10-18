@@ -21,6 +21,8 @@ Do this once. You only need to repeat it if you remove the extension or want to 
 1. Enter `chrome://extensions` in the URL bar or go to `Settings > Extensions`, and enable **Developer mode**.
 2. Click **Load unpacked** and select this repo's `dist` folder.
 
+When connecting a Notion database with multiple data sources, choose the data source where job entries should be created.
+
 #### After setup
 For later changes, run `npm run dev` or `npm run build` as needed. When the build finishes, click the **Reload icon** for the extension on the Extensions page, then reopen the popup.
 

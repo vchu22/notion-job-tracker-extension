@@ -2,7 +2,11 @@ import CreatableSelect from "react-select/creatable";
 import React from "react";
 
 export const createInputField = (name:string, type: string, values: {[key:string]: any}, setValues: any, tabURL?: string, options?: { options: Array<{ id: string, name: string, [key: string]: any }>}) => {
-    const opt = options? options["options"].map(o => {return {value: o["name"], label: o["name"]}}) : undefined;
+    const opt = options? options["options"].map(o => ({
+        value: type === "multi_select" ? o["id"] : o["name"],
+        label: o["name"],
+        id: o["id"]
+    })) : undefined;
     switch (type) {
         case "rich_text":
             return <textarea id={name} name={name} value={values[name]} onChange={(e) => setValues({...values, [name]: e.target.value})}/>

@@ -4,6 +4,7 @@ import { encryptData, decryptData, generateExtensionPassword } from './encryptio
 export interface StoredCredentials {
     databaseId?: string;
     apiKey?: string;
+    dataSourceId?: string;
 }
 
 // Cache the extension password to avoid regenerating it
@@ -22,7 +23,7 @@ async function getExtensionPassword(): Promise<string> {
 /**
  * Save encrypted credentials to Chrome storage
  */
-export const saveCredentials = async (databaseId: string, apiKey: string): Promise<void> => {
+export const saveCredentials = async (databaseId: string, apiKey: string, dataSourceId = ""): Promise<void> => {
     try {
         const password = await getExtensionPassword();
 
@@ -33,7 +34,8 @@ export const saveCredentials = async (databaseId: string, apiKey: string): Promi
         return new Promise((resolve, reject) => {
             chrome.storage.local.set({
                 databaseId: encryptedDatabaseId,
-                apiKey: encryptedApiKey
+                apiKey: encryptedApiKey,
+                dataSourceId
             }, () => {
                 if (chrome.runtime.lastError) {
                     reject(new Error(chrome.runtime.lastError.message));
@@ -48,6 +50,18 @@ export const saveCredentials = async (databaseId: string, apiKey: string): Promi
     }
 };
 
+export const saveDataSourceId = (dataSourceId: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.set({ dataSourceId }, () => {
+            if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError.message));
+            } else {
+                resolve();
+            }
+        });
+    });
+};
+
 /**
  * Load and decrypt credentials from Chrome storage
  */
@@ -56,7 +70,7 @@ export const loadCredentials = async (): Promise<StoredCredentials> => {
         const password = await getExtensionPassword();
 
         return new Promise((resolve, reject) => {
-            chrome.storage.local.get(['databaseId', 'apiKey'], async (result: StoredCredentials) => {
+            chrome.storage.local.get(['databaseId', 'apiKey', 'dataSourceId'], async (result: StoredCredentials) => {
                 if (chrome.runtime.lastError) {
                     reject(new Error(chrome.runtime.lastError.message));
                     return;
@@ -64,6 +78,7 @@ export const loadCredentials = async (): Promise<StoredCredentials> => {
 
                 try {
                     const decryptedResult: StoredCredentials = {};
+                    decryptedResult.dataSourceId = result.dataSourceId;
 
                     // Decrypt databaseId if it exists
                     if (result.databaseId) {
@@ -104,7 +119,7 @@ export const loadCredentials = async (): Promise<StoredCredentials> => {
  */
 export const clearCredentials = (): Promise<void> => {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.remove(['databaseId', 'apiKey'], () => {
+        chrome.storage.local.remove(['databaseId', 'apiKey', 'dataSourceId'], () => {
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError.message));
             } else {

@@ -6,8 +6,10 @@ import JobTrackingBoard from "./job-tracking-board";
 import {useAppContext} from "../app-context";
 
 function SaveJobPost() {
-    const {databaseId, apiKey, boardName, boardColumns} = useAppContext()
+    const {dataSourceId, apiKey, boardName, boardColumns} = useAppContext()
     const [activeTabURL, setActiveTabURL] = useState("")
+    const [errorMessage, setErrorMessage] = useState("")
+    const [isSaving, setIsSaving] = useState(false)
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
         if (tab && typeof tab.url === 'string') {
             setActiveTabURL(tab.url)
@@ -15,45 +17,70 @@ function SaveJobPost() {
     });
     const [fieldValues, setFieldValues] = useState(initFieldValues(boardColumns, activeTabURL))
 
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setErrorMessage("");
+
+        const invalidOption = Object.keys(fieldValues).find(key => {
+            // @ts-ignore
+            return boardColumns[key]["type"] === "multi_select"
+                // @ts-ignore
+                && Array.isArray(fieldValues[key])
+                // @ts-ignore
+                && fieldValues[key].some(option => !option.id && String(option.label || option.value).includes(","));
+        });
+        if (invalidOption) {
+            setErrorMessage(`The new "${invalidOption}" option contains a comma, which Notion does not allow. Choose an existing option or remove the comma.`);
+            return;
+        }
+
+        const properties = Object.keys(fieldValues).reduce((acc, key) => {
+            // @ts-ignore
+            if (fieldValues[key] == "") return ({...acc});
+
+            let val;
+            // @ts-ignore
+            switch (boardColumns[key]["type"]) {
+                case "title":
+                case "rich_text":
+                    // @ts-ignore
+                    val = [{ text: { content: fieldValues[key] }}]; break;
+                case "number":
+                    // @ts-ignore
+                    val = Number.parseFloat(fieldValues[key]); break;
+                case "date":
+                    // @ts-ignore
+                    val = {start: fieldValues[key]}; break;
+                case "select":
+                    // @ts-ignore
+                    val = {name: fieldValues[key]["value"]}; break;
+                case "multi_select":
+                    // @ts-ignore
+                    val = fieldValues[key].map(option => option.id ? {id: option.id} : {name: option.label || option.value}); break;
+                default:
+                    // @ts-ignore
+                    val = fieldValues[key]
+            }
+            return ({...acc, [key]: val})
+        }, {})
+
+        setIsSaving(true);
+        try {
+            await saveToDatabase(dataSourceId, apiKey, properties);
+            goTo(JobTrackingBoard);
+        } catch (error) {
+            console.error("Failed to save job to Notion:", error);
+            setErrorMessage(error instanceof Error ? error.message : "Could not save the job to Notion.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <>
-            <form onSubmit={e => {
-                e.preventDefault();
-                // Convert field values into acceptable formats
-                const properties = Object.keys(fieldValues).reduce((acc, key) => {
-                    // @ts-ignore
-                    if (fieldValues[key] == "") return ({...acc});
-
-                    let val;
-                    // @ts-ignore
-                    switch (boardColumns[key]["type"]) {
-                        case "title":
-                        case "rich_text":
-                            // @ts-ignore
-                            val = [{ text: { content: fieldValues[key] }}]; break;
-                        case "number":
-                            // @ts-ignore
-                            val = Number.parseFloat(fieldValues[key]); break;
-                        case "date":
-                            // @ts-ignore
-                            val = {start: fieldValues[key]}; break;
-                        case "select":
-                            // @ts-ignore
-                            val = {name: fieldValues[key]["value"]}; break;
-                        case "multi_select":
-                            // @ts-ignore
-                            val = fieldValues[key].map(o => {return {name: o["value"]}}); break;
-                        default:
-                            // @ts-ignore
-                            val = fieldValues[key]
-                    }
-                    return ({...acc, [key]: val})
-                }, {})
-
-                // Send a request to save the form values on the Notion database
-                saveToDatabase(databaseId, apiKey, properties);
-            }}>
+            <form onSubmit={handleSubmit}>
                 <h3><button onClick={() => goTo(JobTrackingBoard)}>&larr;</button>Save to {boardName}</h3>
+                {errorMessage ? <p className="error-message" role="alert">{errorMessage}</p> : null}
                 <table>
                     <tbody>
                     { fieldValues? Object.keys(fieldValues).map(key => {
@@ -73,7 +100,7 @@ function SaveJobPost() {
                 <div className="flex flex-row justify-end">
                     <input type="button" value="Clear" onClick={()  => setFieldValues(initFieldValues(boardColumns, activeTabURL))}/>
                     <input type="button" value="Cancel" onClick={()  => goTo(JobTrackingBoard)}/>
-                    <input type="submit" name="save_job" value="Save Job"/>
+                    <input type="submit" name="save_job" value={isSaving ? "Saving..." : "Save Job"} disabled={isSaving}/>
                 </div>
             </form>
         </>
