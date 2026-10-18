@@ -1,27 +1,92 @@
-import React, {useState} from "react";
+import React, { useEffect, useState } from "react";
 import { goTo } from 'react-chrome-extension-router';
-import {initFieldValues, saveToDatabase} from '../lib/util-functions'
+import { initFieldValues, saveToDatabase } from '../lib/util-functions'
 import { createInputField } from '../lib/util-components'
 import JobTrackingBoard from "./job-tracking-board";
-import {useAppContext} from "../app-context";
+import { useAppContext } from "../app-context";
 
 function SaveJobPost() {
-    const {dataSourceId, apiKey, boardName, boardColumns} = useAppContext()
+    const { dataSourceId, apiKey, boardName, boardColumns } = useAppContext()
     const [activeTabURL, setActiveTabURL] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
     const [isSaving, setIsSaving] = useState(false)
+    const [fieldOrder, setFieldOrder] = useState<string[]>([])
+    const [isFieldOrderLoaded, setIsFieldOrderLoaded] = useState(false)
+    const [draggedField, setDraggedField] = useState<string | null>(null)
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
         if (tab && typeof tab.url === 'string') {
             setActiveTabURL(tab.url)
         }
     });
     const [fieldValues, setFieldValues] = useState(initFieldValues(boardColumns, activeTabURL))
+    const fieldNames = Object.keys(fieldValues)
+    const fieldNamesSignature = fieldNames.join("\0")
+    const orderStorageKey = dataSourceId ? `fieldOrder:${dataSourceId}` : ""
+
+    useEffect(() => {
+        let cancelled = false
+        setIsFieldOrderLoaded(false)
+
+        if (!orderStorageKey) {
+            setFieldOrder(fieldNames)
+            setIsFieldOrderLoaded(true)
+            return;
+        }
+
+        chrome.storage.local.get(orderStorageKey, result => {
+            if (cancelled) return
+            if (chrome.runtime.lastError) {
+                console.error("Failed to load saved field order:", chrome.runtime.lastError);
+                setErrorMessage(`Could not load the saved field order: ${chrome.runtime.lastError.message}`)
+                setFieldOrder(fieldNames)
+                setIsFieldOrderLoaded(true)
+                return;
+            }
+
+            const savedOrder = result[orderStorageKey]
+            const validSavedFields = Array.isArray(savedOrder)
+                ? savedOrder.filter((key): key is string => typeof key === "string" && fieldNames.includes(key))
+                : []
+            setFieldOrder([
+                ...new Set(validSavedFields),
+                ...fieldNames.filter(key => !validSavedFields.includes(key))
+            ])
+            setIsFieldOrderLoaded(true)
+        })
+
+        return () => {
+            cancelled = true
+        }
+    }, [orderStorageKey, fieldNamesSignature])
+
+    const persistFieldOrder = (nextOrder: string[]) => {
+        setFieldOrder(nextOrder)
+        if (!orderStorageKey) return
+
+        chrome.storage.local.set({ [orderStorageKey]: nextOrder }, () => {
+            if (chrome.runtime.lastError) {
+                console.error("Failed to save field order:", chrome.runtime.lastError);
+                setErrorMessage(`Could not save the field order: ${chrome.runtime.lastError.message}`)
+            }
+        })
+    }
+
+    const moveField = (field: string, targetIndex: number) => {
+        const sourceIndex = fieldOrder.indexOf(field)
+        if (!isFieldOrderLoaded || sourceIndex < 0 || targetIndex < 0 || targetIndex >= fieldOrder.length || sourceIndex === targetIndex) return
+
+        const nextOrder = [...fieldOrder]
+        nextOrder.splice(sourceIndex, 1)
+        nextOrder.splice(targetIndex, 0, field)
+        // the order will be stored in the local storage for the next time the user uses it
+        persistFieldOrder(nextOrder)
+    }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrorMessage("");
 
-        const invalidOption = Object.keys(fieldValues).find(key => {
+        const invalidOption = fieldOrder.find(key => {
             // @ts-ignore
             return boardColumns[key]["type"] === "multi_select"
                 // @ts-ignore
@@ -34,9 +99,9 @@ function SaveJobPost() {
             return;
         }
 
-        const properties = Object.keys(fieldValues).reduce((acc, key) => {
+        const properties = fieldOrder.reduce((acc, key) => {
             // @ts-ignore
-            if (fieldValues[key] == "") return ({...acc});
+            if (fieldValues[key] == "") return ({ ...acc });
 
             let val;
             // @ts-ignore
@@ -44,24 +109,24 @@ function SaveJobPost() {
                 case "title":
                 case "rich_text":
                     // @ts-ignore
-                    val = [{ text: { content: fieldValues[key] }}]; break;
+                    val = [{ text: { content: fieldValues[key] } }]; break;
                 case "number":
                     // @ts-ignore
                     val = Number.parseFloat(fieldValues[key]); break;
                 case "date":
                     // @ts-ignore
-                    val = {start: fieldValues[key]}; break;
+                    val = { start: fieldValues[key] }; break;
                 case "select":
                     // @ts-ignore
-                    val = {name: fieldValues[key]["value"]}; break;
+                    val = { name: fieldValues[key]["value"] }; break;
                 case "multi_select":
                     // @ts-ignore
-                    val = fieldValues[key].map(option => option.id ? {id: option.id} : {name: option.label || option.value}); break;
+                    val = fieldValues[key].map(option => option.id ? { id: option.id } : { name: option.label || option.value }); break;
                 default:
                     // @ts-ignore
                     val = fieldValues[key]
             }
-            return ({...acc, [key]: val})
+            return ({ ...acc, [key]: val })
         }, {})
 
         setIsSaving(true);
@@ -80,27 +145,49 @@ function SaveJobPost() {
         <>
             <form onSubmit={handleSubmit}>
                 <h3><button onClick={() => goTo(JobTrackingBoard)}>&larr;</button>Save to {boardName}</h3>
+                <p>Drag the ⠿ handle to reorder fields. Your order is saved for next time, but resets if you reinstall the extension.</p>
                 {errorMessage ? <p className="error-message" role="alert">{errorMessage}</p> : null}
                 <table>
                     <tbody>
-                    { fieldValues? Object.keys(fieldValues).map(key => {
-                        // @ts-ignore
-                        const type: string = boardColumns[key]["type"]
-                        // @ts-ignore
-                        const inputField = createInputField(key, type, fieldValues, setFieldValues, (type == "url"? activeTabURL: fieldValues[key]), (type == "select" || type == "multi_select"? boardColumns[key]["select"] || boardColumns[key]["multi_select"] : undefined));
+                        {fieldValues ? fieldOrder.map(key => {
+                            // @ts-ignore
+                            const type: string = boardColumns[key]["type"]
+                            // @ts-ignore
+                            const inputField = createInputField(key, type, fieldValues, setFieldValues, (type == "url" ? activeTabURL : fieldValues[key]), (type == "select" || type == "multi_select" ? boardColumns[key]["select"] || boardColumns[key]["multi_select"] : undefined));
 
-                        return (
-                            <tr key={key}>
-                                <td className="w-1/5">{key}</td>
-                                <td className="w-full">{inputField}</td>
-                            </tr>)
-                    }):null}
+                            return (
+                                <tr
+                                    key={key}
+                                    onDragOver={event => event.preventDefault()}
+                                    onDrop={event => {
+                                        event.preventDefault()
+                                        if (draggedField) moveField(draggedField, fieldOrder.indexOf(key))
+                                        setDraggedField(null)
+                                    }}
+                                >
+                                    <td className="w-1/5">
+                                        <span
+                                            draggable={isFieldOrderLoaded}
+                                            aria-label={`Drag to reorder ${key}`}
+                                            title="Drag to reorder"
+                                            onDragStart={event => {
+                                                setDraggedField(key)
+                                                event.dataTransfer.effectAllowed = "move"
+                                            }}
+                                            onDragEnd={() => setDraggedField(null)}
+                                            style={{ cursor: isFieldOrderLoaded ? "grab" : "default" }}
+                                        >⠿</span>
+                                        {" "}{key}
+                                    </td>
+                                    <td className="w-full">{inputField}</td>
+                                </tr>)
+                        }) : null}
                     </tbody>
                 </table>
                 <div className="flex flex-row justify-end">
-                    <input type="button" value="Clear" onClick={()  => setFieldValues(initFieldValues(boardColumns, activeTabURL))}/>
-                    <input type="button" value="Cancel" onClick={()  => goTo(JobTrackingBoard)}/>
-                    <input type="submit" name="save_job" value={isSaving ? "Saving..." : "Save Job"} disabled={isSaving}/>
+                    <input type="button" value="Clear" onClick={() => setFieldValues(initFieldValues(boardColumns, activeTabURL))} />
+                    <input type="button" value="Cancel" onClick={() => goTo(JobTrackingBoard)} />
+                    <input type="submit" name="save_job" value={isSaving ? "Saving..." : "Save Job"} disabled={isSaving || !isFieldOrderLoaded} />
                 </div>
             </form>
         </>
