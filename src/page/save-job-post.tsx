@@ -164,17 +164,19 @@ function SaveJobPost() {
                                         if (draggedField) moveField(draggedField, fieldOrder.indexOf(key))
                                         setDraggedField(null)
                                     }}
+                                    draggable={isFieldOrderLoaded}
+                                    onDragStart={event => {
+                                        setDraggedField(key)
+                                        event.dataTransfer.effectAllowed = "move"
+                                    }}
+                                    onDragEnd={() => setDraggedField(null)}
+                                    style={{ cursor: isFieldOrderLoaded ? "grab" : "default" }}
                                 >
                                     <td className="w-1/5">
                                         <span
                                             draggable={isFieldOrderLoaded}
                                             aria-label={`Drag to reorder ${key}`}
                                             title="Drag to reorder"
-                                            onDragStart={event => {
-                                                setDraggedField(key)
-                                                event.dataTransfer.effectAllowed = "move"
-                                            }}
-                                            onDragEnd={() => setDraggedField(null)}
                                             style={{ cursor: isFieldOrderLoaded ? "grab" : "default" }}
                                         >⠿</span>
                                         {" "}{key}
