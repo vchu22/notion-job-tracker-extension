@@ -7,11 +7,11 @@ A job tracker extension that uses Notion as the backend to store your job tracki
 
 #### Install dependencies and build
 From the project directory, install the dependencies once:
-- `npm install`
+- `npm install` or `pnpm install`
 
 Then run one of these commands to generate or update the `dist` folder containing your Chrome extension files:
-- Run development mode: `npm run dev`
-- Run production mode: `npm run build`
+- Run development mode: `npm run dev` or `pnpm run dev`
+- Run production mode: `npm run build` or `pnpm run build`
 
 Development mode watches for source changes. Keep its terminal running while you work.
 
