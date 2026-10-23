@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { goTo } from 'react-chrome-extension-router';
 import SaveJobPost from './save-job-post';
-import CredentialsInputPage from "./credentials-input";
-import {useAppContext} from "../app-context";
-import {getDatabaseStructure} from "../lib/util-functions";
-import {saveDataSourceId} from "../lib/db-credentials";
+import CredentialsSetupPage from "./credentials-setup";
+import { useAppContext } from "../app-context";
+import { getDatabaseStructure } from "../lib/util-functions";
+import { saveDataSourceId } from "../lib/db-credentials";
 
 function JobTrackingBoard() {
     const {
@@ -50,9 +50,9 @@ function JobTrackingBoard() {
         });
     };
 
-    return (databaseId?
+    return (databaseId ?
         <>
-            {boardIcon ? <img src={boardIcon} alt="" width={64} height={64}/> : null}
+            {boardIcon ? <img src={boardIcon} alt="" width={64} height={64} /> : null}
             {boardName ? <h3>{boardName}</h3> : null}
             {boardName && dataSources.length > 1 ?
                 <>
@@ -65,8 +65,8 @@ function JobTrackingBoard() {
             {errorMessage ? <p role="alert">{errorMessage}</p> : null}
             {boardName && dataSourceId && !isLoading ? <button onClick={() => goTo(SaveJobPost)}>Save Job Post</button> : null}
             {boardName ? <button onClick={() => window.open(`https://www.notion.so/${databaseId}`, "_blank")}>View Board</button> : null}
-            {boardName ? <button onClick={() => goTo(CredentialsInputPage)}>Edit Connection Credentials</button> : null}
-        </>: null
+            {boardName ? <button onClick={() => goTo(CredentialsSetupPage)}>Edit Connection Credentials</button> : null}
+        </> : null
     )
 }
 

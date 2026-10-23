@@ -8,7 +8,7 @@ import { MainPage } from "../lib/util-consts";
 import { getDatabaseStructure } from "../lib/util-functions";
 import NotionCredentialsGuide from "./notion-credentials-guide";
 
-function CredentialsInputPage() {
+function CredentialsSetupPage() {
     const {
         databaseId, setDatabaseId, apiKey, setApiKey, dataSourceId, setDataSourceId, dataSources, setDataSources,
         setBoardName, setBoardIcon, setBoardColumns
@@ -168,4 +168,4 @@ const Modal = ({ databaseId, apiKey, dataSourceId, setShowModal }: {
         </div>
     )
 }
-export default CredentialsInputPage;
+export default CredentialsSetupPage;

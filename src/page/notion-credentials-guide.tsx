@@ -1,6 +1,6 @@
 import React from "react";
 import { goTo } from "react-chrome-extension-router";
-import CredentialsInputPage from "./credentials-input";
+import CredentialsSetupPage from "./credentials-setup";
 
 function NotionCredentialsGuide() {
     return (
@@ -32,7 +32,7 @@ function NotionCredentialsGuide() {
 
             <p><strong>Keep your token private.</strong> It lets the extension access Notion content available to your account. Don't send it to anyone or post it publicly.</p>
             <p>Back in the extension, enter both values and select <strong>Connect</strong>. If your database has more than one data source, choose where new job entries should go.</p>
-            <button onClick={() => goTo(CredentialsInputPage)}>Back to connection</button>
+            <button onClick={() => goTo(CredentialsSetupPage)}>Back to connection</button>
         </div>
     );
 }

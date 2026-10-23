@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Router } from 'react-chrome-extension-router';
 import WelcomePage from './page/welcome'
-import CredentialsInputPage from './page/credentials-input'
+import CredentialsSetupPage from './page/credentials-setup'
 import { AppProvider, useAppContext } from "./app-context";
 import { MainPage } from './lib/util-consts';
 import { loadSettings } from "./lib/settings";
@@ -40,7 +40,7 @@ const ContentWrapper = ({ mainPage }: { mainPage: MainPage }) => {
     }, [setDatabaseId, setApiKey, setDataSourceId])
     return (<div className="content-wrapper">
         <Router>
-            {mainPage == MainPage.JobTrackingBoard ? <JobTrackingBoard /> : (mainPage == MainPage.CredentialInput ? <CredentialsInputPage /> : <WelcomePage />)}
+            {mainPage == MainPage.JobTrackingBoard ? <JobTrackingBoard /> : (mainPage == MainPage.CredentialsSetup ? <CredentialsSetupPage /> : <WelcomePage />)}
         </Router>
     </div>)
 }

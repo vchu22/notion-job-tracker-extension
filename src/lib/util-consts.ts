@@ -1,5 +1,5 @@
 export enum MainPage {
     Welcome,
-    CredentialInput,
+    CredentialsSetup,
     JobTrackingBoard
 }
