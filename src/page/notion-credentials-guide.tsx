@@ -10,30 +10,44 @@ function NotionCredentialsGuide() {
 
             <h4>1. Copy your database ID</h4>
             <ol>
-                <li>In Notion, open the database as a full page, then use its menu to choose <strong>Copy link</strong>.</li>
-                <li>
-                    In the copied link, find the database's long ID. It is usually the 32-character string at the end of the address
-                    (sometimes shown with hyphens). For example, in <code>notion.so/Jobs-a1b2c3d4e5f6478890abcdef12345678?v=...</code>,
-                    the ID is <code>a1b2c3d4e5f6478890abcdef12345678</code>.
+                <li>Log on to your Notion, and open the page for your job tracker Notion database.
                 </li>
-                <li>Copy only that ID, not the workspace or database name, the rest of the link, or anything after <code>?v=</code>, and paste it into <strong>Database ID</strong>.</li>
+                <li>
+                    <p>In the URL of the page, copy the database ID, which is shown after the last <code>/</code> and before the <code>?v=</code>. For example, in <code>app.notion.com/p/a1b2c3d4e5f6478890abcdef12345678?v=...</code>, the ID is <code>a1b2c3d4e5f6478890abcdef12345678</code>.
+                    </p>
+                    <img src="img/Guide_dbID_Step_2.png" width="100%" />
+                </li>
+                <li>
+                    <p>Paste it into the <strong>Database ID</strong> field in this extension.</p>
+                    <img src="img/Guide_dbID_Step_3.png" width="100%" />
+                </li>
             </ol>
 
             <h4>2. Create your API key</h4>
             <ol>
                 <li>Sign in to Notion and go to the workspace that contains your database.</li>
                 <li>
-                    Open <a href="https://www.notion.so/developers/tokens" target="_blank" rel="noreferrer">Notion's token page</a> and click on <strong>New token</strong>.
+                    <p>Open <a href="https://www.notion.so/developers/tokens" target="_blank" rel="noreferrer">Notion's token page</a> and click on <strong>New token</strong>.</p>
+                    <img src="img/Guide_APIKey_Step_2.png" width="100%" />
                 </li>
-                <li>Give the token a name, and make sure to enable the <strong>Notion API</strong> capability.</li>
-                <li>Create the token and copy it. Notion won't show it again.</li>
-                <li>You'll paste it into the extension's <strong>API Key</strong> field.</li>
+                <li>
+                    <p>Give the token a name, and make sure to enable the <strong>Notion API</strong> capability.</p>
+                    <img src="img/Guide_APIKey_Step_3.png" width="100%" />
+                </li>
+                <li>
+                    <p>Create the token and copy it. Notion won't show it again.</p>
+                    <img src="img/Guide_APIKey_Step_4.png" width="100%" />
+                </li>
+                <li>
+                    <p>You'll paste it into the extension's <strong>API Key</strong> field.</p>
+                    <img src="img/Guide_APIKey_Step_5.png" width="100%" />
+                </li>
             </ol>
 
             <p><strong>Keep your token private.</strong> It lets the extension access Notion content available to your account. Don't send it to anyone or post it publicly.</p>
             <p>Back in the extension, enter both values and select <strong>Connect</strong>. If your database has more than one data source, choose where new job entries should go.</p>
             <button onClick={() => goTo(CredentialsSetupPage)}>Back to connection</button>
-        </div>
+        </div >
     );
 }
 
