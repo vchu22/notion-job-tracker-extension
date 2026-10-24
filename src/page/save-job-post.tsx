@@ -144,7 +144,10 @@ function SaveJobPost() {
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <h3><button onClick={() => goTo(JobTrackingBoard)}>&larr;</button>Save to {boardName}</h3>
+                <h3 className="flex-row">
+                    <button className="icon-btn" onClick={() => goTo(JobTrackingBoard)}>&larr;</button>
+                    <span>Save to {boardName}</span>
+                </h3>
                 <p>Drag the ⠿ handle to reorder fields. Your order is saved for next time, but resets if you reinstall the extension.</p>
                 {errorMessage ? <p className="error-message" role="alert">{errorMessage}</p> : null}
                 <table>
